@@ -65,11 +65,61 @@ with pd.option_context('display.max_rows', None, 'display.max_columns', None):
 #         # nu = soup.findAll('h2', re.compile("(cast|Cast)"))
 #         # print (nu)
 
-# for movie_link in df["Links"]:
-movie_link = df["Links"][5]
-page = urlopen(movie_link)
-soup = BeautifulSoup(page, features="html.parser")
-for elem in soup.findAll("span", id=re.compile(r'[cast|Cast]$'), recursive=True):
-    print (elem.get_text())
-        # nu = soup.findAll('h2', re.compile("(cast|Cast)"))
-        # print (nu)
+actors_list = []
+link_list = []
+
+for movie_link in df["Links"]:
+    if movie_link == "":
+        continue
+    page = urlopen(movie_link)
+    soup = BeautifulSoup(page, features="html.parser")
+    html = list(soup.children)[2]
+    body = list(html.children)[3]
+
+    span = soup.findAll("span", id="Cast")
+    if not span:
+        span = soup.findAll("span", id="Principal cast")
+    if not span:
+        span = soup.findAll("span", id="Main cast")
+    if not span:
+        span = soup.findAll("span", id="Voice cast")
+    if not span:
+        print("failed: " + movie_link)
+        continue
+
+    try:
+        p = span[0].parent
+        entire_list = list(p.findNext('ul').findAll("li"))
+        appended = 0
+        for entry in entire_list:
+            if entry.find('a'):
+                name = entry.find('a').get_text()
+                if name.find(' as ') > -1:
+                    print("cutting: " + name)
+                    name = name[:name.find(' as ')]
+                    print("now have: " + name)
+                actors_list.append(name)
+                link_list.append(wiki_prefix + entry.find('a').get('href'))
+
+            elif entry.get_text() != "":
+                actors_list.append(entry.get_text())
+                link_list.append("")
+
+            appended += 1
+
+        print("success! " + movie_link + "appended: " + str(appended))
+    except:
+        print("fail!" + movie_link + "appended: " + str(appended))
+
+actorsdf=pd.DataFrame(actors_list, columns=['Name'])
+actorsdf['Link'] = link_list
+
+actorsdf.sort_values("Name")
+
+
+with pd.option_context('display.max_rows', None, 'display.max_columns', None):
+    print(actorsdf)
+
+#TODO Filter "as" phrases from names ("Julia Robrt as some character")
+#TODO Remove duplicates from actorsdf
+#TODO try and generalize line 80-85
