@@ -84,42 +84,39 @@ for movie_link in df["Links"]:
     if not span:
         span = soup.findAll("span", id="Voice cast")
     if not span:
-        print("failed: " + movie_link)
+        # print("failed: " + movie_link)
         continue
 
     try:
         p = span[0].parent
         entire_list = list(p.findNext('ul').findAll("li"))
-        appended = 0
         for entry in entire_list:
             if entry.find('a'):
                 name = entry.find('a').get_text()
-                if name.find(' as ') > -1:
-                    print("cutting: " + name)
-                    name = name[:name.find(' as ')]
-                    print("now have: " + name)
                 actors_list.append(name)
                 link_list.append(wiki_prefix + entry.find('a').get('href'))
 
             elif entry.get_text() != "":
-                actors_list.append(entry.get_text())
+                name = entry.get_text()
+                if name.find(' as ') > -1:
+                    name = name[:name.find(' as ')]
+                actors_list.append(name)
                 link_list.append("")
-
-            appended += 1
-
-        print("success! " + movie_link + "appended: " + str(appended))
     except:
-        print("fail!" + movie_link + "appended: " + str(appended))
+        None
 
+
+#For some reason this doesnt really remove duplicate names... try looking for Julia Roberts, you'll see what I mean :)
 actorsdf=pd.DataFrame(actors_list, columns=['Name'])
 actorsdf['Link'] = link_list
-
+print(len(actorsdf))
+actorsdf.drop_duplicates(['Name'], keep="last")
+print(len(actorsdf))
 actorsdf.sort_values("Name")
 
 
 with pd.option_context('display.max_rows', None, 'display.max_columns', None):
     print(actorsdf)
 
-#TODO Filter "as" phrases from names ("Julia Robrt as some character")
 #TODO Remove duplicates from actorsdf
 #TODO try and generalize line 80-85
