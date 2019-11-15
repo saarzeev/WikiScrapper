@@ -1,4 +1,4 @@
-from urllib.request import urlopen
+from urllib import urlopen
 from bs4 import BeautifulSoup
 import re
 
@@ -65,6 +65,7 @@ with pd.option_context('display.max_rows', None, 'display.max_columns', None):
 #         # nu = soup.findAll('h2', re.compile("(cast|Cast)"))
 #         # print (nu)
 
+print 'start question 2'
 actors_list = []
 link_list = []
 
@@ -106,17 +107,72 @@ for movie_link in df["Links"]:
         None
 
 
-#For some reason this doesnt really remove duplicate names... try looking for Julia Roberts, you'll see what I mean :)
 actorsdf=pd.DataFrame(actors_list, columns=['Name'])
 actorsdf['Link'] = link_list
+print(len(link_list))
 print(len(actorsdf))
-actorsdf.drop_duplicates(['Name'], keep="last")
+duplicated=actorsdf.groupby('Name').size().reset_index(name ='count')
+actorsdf.drop_duplicates(['Name'], keep="last",inplace=True)
 print(len(actorsdf))
+print (len(actorsdf['Link']))
 actorsdf.sort_values("Name")
+
+BD=[]
+BP=[]
+AW=[]
+
+
+for co_actor_link in actorsdf["Link"]:
+    if co_actor_link == "":
+        BD.append("")
+        BP.append("")
+        AW.append("")
+        continue
+    coactorpage = urlopen(co_actor_link)
+    soup = BeautifulSoup(coactorpage, features="html.parser")
+
+    try:
+        findTable = soup.find('table', class_='infobox biography vcard')
+        if not findTable:
+            BD.append("")
+            BP.append("")
+            AW.append("")
+            continue
+        born=findTable.find('span',class_='bday')
+        if born:
+            bdate=(born.string).split("-")
+            BD.append(bdate[0])
+        else:
+            BD.append("")
+        birthplacesoup=findTable.find('div',class_='birthplace')
+        if birthplacesoup:
+            birthplace=(birthplacesoup.get_text()).split(",")
+            BP.append(birthplace[len(birthplace)-1])
+        else:
+            BP.append("")
+    except:
+        None
+
+actorsdf['Bdate']=BD
+actorsdf['BPlace']=BP
+
+
+print actorsdf
 
 
 with pd.option_context('display.max_rows', None, 'display.max_columns', None):
     print(actorsdf)
 
-#TODO Remove duplicates from actorsdf
+
 #TODO try and generalize line 80-85
+
+
+###### Question 3
+print duplicated
+dfHistogram=duplicated.groupby('count').size()
+# duplicated=pd.DataFrame(actors_list, columns=['Name'])
+print dfHistogram
+
+import matplotlib.pyplot as plt
+plt.hist(dfHistogram, len(dfHistogram), facecolor='blue', alpha=0.5)
+plt.show()
