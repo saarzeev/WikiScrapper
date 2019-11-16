@@ -168,11 +168,11 @@ with pd.option_context('display.max_rows', None, 'display.max_columns', None):
 
 
 ###### Question 3
-print duplicated
-dfHistogram=duplicated.groupby('count').size()
-# duplicated=pd.DataFrame(actors_list, columns=['Name'])
-print dfHistogram
-
 import matplotlib.pyplot as plt
-plt.hist(dfHistogram, len(dfHistogram), facecolor='blue', alpha=0.5)
+
+print (duplicated)
+dfHistogram=duplicated.groupby('count').size().reset_index(name ='size')
+dfHistogram.plot(x='count',y='size',kind='bar')
 plt.show()
+
+
