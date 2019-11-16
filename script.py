@@ -65,7 +65,6 @@ with pd.option_context('display.max_rows', None, 'display.max_columns', None):
 #         # nu = soup.findAll('h2', re.compile("(cast|Cast)"))
 #         # print (nu)
 
-print 'start question 2'
 actors_list = []
 link_list = []
 
@@ -94,27 +93,25 @@ for movie_link in df["Links"]:
         for entry in entire_list:
             if entry.find('a'):
                 name = entry.find('a').get_text()
-                actors_list.append(name)
-                link_list.append(wiki_prefix + entry.find('a').get('href'))
+                if not name=="Julia Roberts":
+                    actors_list.append(name)
+                    link_list.append(wiki_prefix + entry.find('a').get('href'))
 
             elif entry.get_text() != "":
                 name = entry.get_text()
                 if name.find(' as ') > -1:
                     name = name[:name.find(' as ')]
-                actors_list.append(name)
-                link_list.append("")
+                if not name == "Julia Roberts":
+                    actors_list.append(name)
+                    link_list.append("")
     except:
         None
 
 
 actorsdf=pd.DataFrame(actors_list, columns=['Name'])
 actorsdf['Link'] = link_list
-print(len(link_list))
-print(len(actorsdf))
-duplicated=actorsdf.groupby('Name').size().reset_index(name ='count')
+duplicated=actorsdf.groupby('Name').size().reset_index(name='Num of occurrences')
 actorsdf.drop_duplicates(['Name'], keep="last",inplace=True)
-print(len(actorsdf))
-print (len(actorsdf['Link']))
 actorsdf.sort_values("Name")
 
 BD=[]
@@ -171,8 +168,8 @@ with pd.option_context('display.max_rows', None, 'display.max_columns', None):
 import matplotlib.pyplot as plt
 
 print (duplicated)
-dfHistogram=duplicated.groupby('count').size().reset_index(name ='size')
-dfHistogram.plot(x='count',y='size',kind='bar')
+dfHistogram=duplicated.groupby('Num of occurrences').size().reset_index(name ='count')
+dfHistogram.plot(x='Num of occurrences',y='count',kind='bar')
 plt.show()
 
 
