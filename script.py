@@ -187,9 +187,9 @@ print len(AW)
 
 
 
-# actorsdf['Birth year']=BD
-# actorsdf['Birth palce']=BP
-# actorsdf['Awards']=AW
+actorsdf['Birth year']=BD
+actorsdf['Birth palce']=BP
+actorsdf['Awards']=AW
 
 
 print actorsdf
