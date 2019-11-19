@@ -163,20 +163,22 @@ for co_actor_name in actorsdf["Name"]:
         print name
         print
         # awardPage = urlopen("https://en.wikipedia.org/wiki/Category:Lists_of_awards_by_" + name)
+        ur = "https://en.wikipedia.org/wiki/List_of_awards_and_nominations_received_by_" + name
+        print ur
         awardPage = urlopen("https://en.wikipedia.org/wiki/List_of_awards_and_nominations_received_by_" + name)
         awardSoup = BeautifulSoup(awardPage, features="html.parser")
-        print awardSoup
         i = 0;
         findAwards = awardSoup.findAll('table')
-        print findAwards
         if not findAwards:
             AW.append("A")
             print "A"
         else:
-            for table in findAwards:
-                i = table.count("Won")
+            # for tablefindAwards in findAwards:
+            #     i =i + tablefindAwards.count("Won")
+            i = str(findAwards).count("Won")
             AW.append(i)
             print i
+
     except:
         AW.append("B")
         print "b"
@@ -187,7 +189,7 @@ print len(AW)
 
 # actorsdf['Birth year']=BD
 # actorsdf['Birth palce']=BP
-actorsdf['Awards']=AW
+# actorsdf['Awards']=AW
 
 
 print actorsdf
