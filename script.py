@@ -118,40 +118,76 @@ BD=[]
 BP=[]
 AW=[]
 
+# count=0
+# for co_actor_link in actorsdf["Link"]:
+#     count=count+1
+#     if co_actor_link == "":
+#         BD.append("")
+#         BP.append("")
+#         continue
+#     coactorpage = urlopen(co_actor_link)
+#     soup = BeautifulSoup(coactorpage, features="html.parser")
+#
+#     try:
+#         findTable = soup.find('table', class_='infobox biography vcard')
+#         if not findTable:
+#             BD.append("")
+#             BP.append("")
+#             continue
+#         born=findTable.find('span',class_='bday')
+#         if born:
+#             bdate=(born.string).split("-")
+#             BD.append(bdate[0])
+#         else:
+#             BD.append("")
+#         birthplacesoup=findTable.find('div',class_='birthplace')
+#         if birthplacesoup:
+#             birthplace=(birthplacesoup.get_text()).split(",")
+#             BP.append(birthplace[len(birthplace)-1])
+#         else:
+#             BP.append("")
+#     except:
+#         None
 
-for co_actor_link in actorsdf["Link"]:
-    if co_actor_link == "":
-        BD.append("")
-        BP.append("")
-        AW.append("")
-        continue
-    coactorpage = urlopen(co_actor_link)
-    soup = BeautifulSoup(coactorpage, features="html.parser")
-
+for co_actor_name in actorsdf["Name"]:
     try:
-        findTable = soup.find('table', class_='infobox biography vcard')
-        if not findTable:
-            BD.append("")
-            BP.append("")
-            AW.append("")
-            continue
-        born=findTable.find('span',class_='bday')
-        if born:
-            bdate=(born.string).split("-")
-            BD.append(bdate[0])
+        # # names=co_actor_link.split('/')
+        # # print names[len(names)-1]
+        # # actorname=names[len(names)-1].replace()
+        # # awardPage = urlopen("https://en.wikipedia.org/wiki/Category:Lists_of_awards_by_"+names[len(names)-1])
+        # #  print count
+        # s = actorsdf['Name']
+        # name = s[count]
+        # print name
+        name = co_actor_name.replace(" ", "_")
+        print name
+        print
+        # awardPage = urlopen("https://en.wikipedia.org/wiki/Category:Lists_of_awards_by_" + name)
+        awardPage = urlopen("https://en.wikipedia.org/wiki/List_of_awards_and_nominations_received_by_" + name)
+        awardSoup = BeautifulSoup(awardPage, features="html.parser")
+        print awardSoup
+        i = 0;
+        findAwards = awardSoup.findAll('table')
+        print findAwards
+        if not findAwards:
+            AW.append("A")
+            print "A"
         else:
-            BD.append("")
-        birthplacesoup=findTable.find('div',class_='birthplace')
-        if birthplacesoup:
-            birthplace=(birthplacesoup.get_text()).split(",")
-            BP.append(birthplace[len(birthplace)-1])
-        else:
-            BP.append("")
+            for table in findAwards:
+                i = table.count("Won")
+            AW.append(i)
+            print i
     except:
-        None
+        AW.append("B")
+        print "b"
 
-actorsdf['Bdate']=BD
-actorsdf['BPlace']=BP
+print len(AW)
+
+
+
+# actorsdf['Birth year']=BD
+# actorsdf['Birth palce']=BP
+actorsdf['Awards']=AW
 
 
 print actorsdf
