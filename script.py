@@ -2,6 +2,28 @@ from urllib import urlopen
 from bs4 import BeautifulSoup
 import re
 
+
+def findAwardsFunc(name):
+    print name
+    try:
+        ur = "https://en.wikipedia.org/wiki/List_of_awards_and_nominations_received_by_" + name
+        print ur
+        awardPage = urlopen("https://en.wikipedia.org/wiki/List_of_awards_and_nominations_received_by_" + name)
+        awardSoup = BeautifulSoup(awardPage, features="html.parser")
+        i = 0;
+        findAwards = awardSoup.findAll('table')
+        if not findAwards:
+            return -1
+        else:
+            # for tablefindAwards in findAwards:
+            #     i =i + tablefindAwards.count("Won")
+            i = str(findAwards).count("Won")
+            # AW.append(i)
+            return i
+    except:
+        # AW.append("B")
+        return -1
+
 ###### Question 1
 wiki_prefix = "https://en.wikipedia.org/"
 wiki = "https://en.wikipedia.org/wiki/Julia_Roberts_filmography"
@@ -118,70 +140,91 @@ BD=[]
 BP=[]
 AW=[]
 
-# count=0
-# for co_actor_link in actorsdf["Link"]:
-#     count=count+1
-#     if co_actor_link == "":
-#         BD.append("")
-#         BP.append("")
-#         continue
-#     coactorpage = urlopen(co_actor_link)
-#     soup = BeautifulSoup(coactorpage, features="html.parser")
-#
-#     try:
-#         findTable = soup.find('table', class_='infobox biography vcard')
-#         if not findTable:
-#             BD.append("")
-#             BP.append("")
-#             continue
-#         born=findTable.find('span',class_='bday')
-#         if born:
-#             bdate=(born.string).split("-")
-#             BD.append(bdate[0])
-#         else:
-#             BD.append("")
-#         birthplacesoup=findTable.find('div',class_='birthplace')
-#         if birthplacesoup:
-#             birthplace=(birthplacesoup.get_text()).split(",")
-#             BP.append(birthplace[len(birthplace)-1])
-#         else:
-#             BP.append("")
-#     except:
-#         None
+tmpNames=actorsdf['Name']
+ind=0
+for co_actor_link in actorsdf["Link"]:
+    ind=ind+1
+    if co_actor_link == "":
+        BD.append(None)
+        BP.append(None)
+        AW.append(None)
+        continue
+    coactorpage = urlopen(co_actor_link)
+    soup = BeautifulSoup(coactorpage, features="html.parser")
 
-for co_actor_name in actorsdf["Name"]:
     try:
-        # # names=co_actor_link.split('/')
-        # # print names[len(names)-1]
-        # # actorname=names[len(names)-1].replace()
-        # # awardPage = urlopen("https://en.wikipedia.org/wiki/Category:Lists_of_awards_by_"+names[len(names)-1])
-        # #  print count
-        # s = actorsdf['Name']
-        # name = s[count]
-        # print name
-        name = co_actor_name.replace(" ", "_")
-        print name
-        print
-        # awardPage = urlopen("https://en.wikipedia.org/wiki/Category:Lists_of_awards_by_" + name)
-        ur = "https://en.wikipedia.org/wiki/List_of_awards_and_nominations_received_by_" + name
-        print ur
-        awardPage = urlopen("https://en.wikipedia.org/wiki/List_of_awards_and_nominations_received_by_" + name)
-        awardSoup = BeautifulSoup(awardPage, features="html.parser")
-        i = 0;
-        findAwards = awardSoup.findAll('table')
-        if not findAwards:
-            AW.append("A")
-            print "A"
+        findTable = soup.find('table', class_='infobox biography vcard')
+        if not findTable:
+            BD.append(None)
+            BP.append(None)
+            AW.append(None)
+            continue
+        born=findTable.find('span',class_='bday')
+        if born:
+            bdate=(born.string).split("-")
+            BD.append(bdate[0])
         else:
-            # for tablefindAwards in findAwards:
-            #     i =i + tablefindAwards.count("Won")
-            i = str(findAwards).count("Won")
-            AW.append(i)
-            print i
-
+            BD.append(None)
+        birthplacesoup=findTable.find('div',class_='birthplace')
+        if birthplacesoup:
+            birthplace=(birthplacesoup.get_text()).split(",")
+            BP.append(birthplace[len(birthplace)-1])
+        else:
+            BP.append(None)
+        findAwards=soup.findAll("td",style="background: #99FF99; color: black; vertical-align: middle; text-align: center;")
+        countAwards = 0
+        try:
+            if findAwards:
+                countAwards = str(findAwards).count("Won")
+                countAwards = countAwards + str(findAwards).count("Honoured")
+                countAwards = countAwards + str(findAwards).count("Honored")
+                print "count" + str(countAwards) + " name= " + co_actor_link
+                if countAwards == 0:
+                    countAwards = findAwardsFunc(tmpNames[ind])
+            else:
+                countAwards = findAwardsFunc(tmpNames[ind])
+            if(countAwards==-1):
+                AW.append(None)
+            else:
+                AW.append(countAwards)
+        except:
+            AW.append(0)
     except:
-        AW.append("B")
-        print "b"
+        None
+
+# for co_actor_name in actorsdf["Name"]:
+#     try:
+#         # # names=co_actor_link.split('/')
+#         # # print names[len(names)-1]
+#         # # actorname=names[len(names)-1].replace()
+#         # # awardPage = urlopen("https://en.wikipedia.org/wiki/Category:Lists_of_awards_by_"+names[len(names)-1])
+#         # #  print count
+#         # s = actorsdf['Name']
+#         # name = s[count]
+#         # print name
+#         name = co_actor_name.replace(" ", "_")
+#         print name
+#         print
+        # awardPage = urlopen("https://en.wikipedia.org/wiki/Category:Lists_of_awards_by_" + name)
+    #     ur = "https://en.wikipedia.org/wiki/List_of_awards_and_nominations_received_by_" + name
+    #     print ur
+    #     awardPage = urlopen("https://en.wikipedia.org/wiki/List_of_awards_and_nominations_received_by_" + name)
+    #     awardSoup = BeautifulSoup(awardPage, features="html.parser")
+    #     i = 0;
+    #     findAwards = awardSoup.findAll('table')
+    #     if not findAwards:
+    #         AW.append("")
+    #         print "A"
+    #     else:
+    #         # for tablefindAwards in findAwards:
+    #         #     i =i + tablefindAwards.count("Won")
+    #         i = str(findAwards).count("Won")
+    #         AW.append(i)
+    #         print i
+    #
+    # except:
+    #     AW.append("B")
+    #     print "b"
 
 print len(AW)
 
@@ -199,9 +242,6 @@ with pd.option_context('display.max_rows', None, 'display.max_columns', None):
     print(actorsdf)
 
 
-#TODO try and generalize line 80-85
-
-
 ###### Question 3
 import matplotlib.pyplot as plt
 
@@ -209,5 +249,4 @@ print (duplicated)
 dfHistogram=duplicated.groupby('Num of occurrences').size().reset_index(name ='count')
 dfHistogram.plot(x='Num of occurrences',y='count',kind='bar')
 plt.show()
-
 
