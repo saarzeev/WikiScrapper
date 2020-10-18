@@ -15,6 +15,6 @@ https://en.wikipedia.org/wiki/List_of_awards_and_nominations_received_by_firstna
 we will count from the tables the occurrences of won,honored,honoured and sum them to number of awards won by the actor
 
 
-Authors:
-Nofar Turteltaub
-Saar Guttman
+## Authors:
+  - Nofar Turteltaub
+  - Saar Guttman
